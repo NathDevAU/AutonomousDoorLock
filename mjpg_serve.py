@@ -1,8 +1,8 @@
 #!/usr/bin/python
-'''
-	orig author: Igor Maculan - n3wtron@gmail.com
-	A Simple mjpg stream http server
-'''
+
+#Copyright Steven Hickson
+#Heavily modified httpserver script from Igor Maculan
+
 import cv2
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 import time
@@ -44,7 +44,7 @@ def unlock():
     locked = False
     print "unlocking!"
     servo.set_servo(18, 1200)
-    time.sleep(0.5)
+    time.sleep(0.4)
     servo.stop_servo(18)
     return
 
@@ -52,7 +52,7 @@ def isDoorOpen(img):
     global template
     global isOpen
     global openThresh
-    total = cv2.sumElems(cv2.sumElems(cv2.subtract(img,template)))
+    total = cv2.sumElems(cv2.sumElems(cv2.absdiff(img,template)))
     #print "Total: " + str(total[0])
     if total[0] > openThresh:
         #print "Open"
