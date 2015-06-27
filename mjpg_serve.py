@@ -24,7 +24,8 @@ xHigh = 380
 yLow = 230
 yHigh = 305
 faceConf = 475
-openThresh = 350000
+openThresh = 150000
+closeThresh = 90000
 isOpen = False
 locked = True
 
@@ -52,15 +53,20 @@ def isDoorOpen(img):
     global template
     global isOpen
     global openThresh
-    total = cv2.sumElems(cv2.sumElems(cv2.absdiff(img,template)))
+    global closeThresh
+    tmp = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+    tmp[:,:,2] = 0
+    total = cv2.sumElems(cv2.sumElems(cv2.absdiff(tmp,template)))
     #print "Total: " + str(total[0])
     if total[0] > openThresh:
         #print "Open"
         isOpen = True
         return True
     #print "Closed"
-    isOpen = False
-    return False
+    if total[0] <= closeThresh:
+        isOpen = False
+        return False
+    return isOpen
 
 def face_detect(img):
     global face_cascade
@@ -179,6 +185,8 @@ def main():
     capture.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 640); 
     capture.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 480);
     template = cv2.imread("/home/pi/RPi_Ipcam/background.png")
+    template = cv2.cvtColor(template, cv2.COLOR_RGB2HSV)
+    template[:,:,2] = 0
     lock()
     try:
         thread = Thread(target = img_thread)
